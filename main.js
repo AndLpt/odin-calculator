@@ -18,6 +18,7 @@ let firstNumber = null;
 let operator = null;
 let secondNumber = null;
 let operatorCount = 0;
+let hasPressedDigit = false;
 
 let displayNumber = document.querySelector("#display");
 let display = "0";
@@ -77,6 +78,7 @@ function handleDigit(textContent) {
     }
     
     displayNumber.textContent = display;
+    hasPressedDigit = true;
 }
 
 function handleOperator(textContent) {
@@ -88,6 +90,7 @@ function handleOperator(textContent) {
         handleEqual(false);
     }  
     operator = textContent;
+    hasPressedDigit = false;
 }
 
 function handleEqual(hasPressedEqual) {
