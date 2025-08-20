@@ -91,9 +91,20 @@ function handleOperator(textContent) {
 }
 
 function handleEqual(hasPressedEqual) {
+    if (hasPressedEqual && operatorCount < 1 ||
+        !hasPressedEqual && operatorCount < 2) {
+        alert("Enter all the numbers.");
+        clear();
+        return;
+    }
     shouldResetDisplay = true;
     operatorCount = hasPressedEqual ? 0 : 1;
     secondNumber = +display;
+    if(secondNumber === 0) {
+        alert("Nope, can’t divide by 0!");
+        clear();
+        return;
+    }
     display = formatDisplay(operate(firstNumber, operator, secondNumber));
     firstNumber = display;
     displayNumber.textContent = display;
