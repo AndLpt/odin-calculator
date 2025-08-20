@@ -20,6 +20,8 @@ let secondNumber = null;
 let operatorCount = 0;
 let hasPressedDigit = false;
 let hasClickedOperator = false;
+let decimal = document.querySelector("#decimal");
+let undo = document.querySelector("#undo");
 
 let displayNumber = document.querySelector("#display");
 let display = "0";
@@ -33,6 +35,7 @@ function clear() {
     firstNumber = null;
     secondNumber = null;
     operator = null;
+    decimal.disabled = false;
     display = "0";
     operatorCount = 0;
     displayNumber.textContent = display;
@@ -70,6 +73,7 @@ function operate(firstNumber, operator, secondNumber){
 function handleDigit(textContent) {
     if (shouldResetDisplay) {
         display = "0";
+        decimal.disabled = false;
         shouldResetDisplay = false;
     }
 
@@ -120,7 +124,7 @@ function handleEqual(hasPressedEqual) {
     operatorCount = hasPressedEqual ? 0 : 1;
     secondNumber = +display;
     if(secondNumber === 0) {
-        alert("Nope, can’t divide by 0!");
+        alert("Nope, can't divide by 0!");
         clear();
         return;
     }
@@ -130,11 +134,52 @@ function handleEqual(hasPressedEqual) {
     displayNumber.textContent = display;
 }
 
+decimal.addEventListener("click", () => {
+    display += ".";
+    decimal.disabled = true;
+})
+
+undo.addEventListener("click", () => {
+    display = display.slice(0, display.length -1);
+    displayNumber.textContent = display;
+})
+
+
+document.addEventListener("keydown", (e) => {
+    const key = e.key;
+    console.log("bouton appuye est " + key);
+    if (digits.includes(key)) {
+        handleDigit(key);
+        return;
+    }
+    switch(key) {
+        case "=":
+        case "Enter":
+            handleEqual(true);
+            break;
+        case ".":
+            decimal.dispatchEvent(new Event("click"));
+            break;
+        case "Backspace":
+        case "Delete":
+            undo.dispatchEvent(new Event("click"));
+            break;
+        case "+":
+        case "-":
+        case "*":
+        case "/":
+            handleOperator(key);
+            break;
+        default:
+            console.log("operator not valid");
+    }
+})
 
 container.addEventListener("click", (e) => {
     const textContent = e.target.textContent;
     if (digits.includes(textContent)) {
         handleDigit(textContent);
+        return;
     } else {
         switch (textContent) {
             case "=":

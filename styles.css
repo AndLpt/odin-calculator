@@ -5,3 +5,16 @@
 .row{
     display: flex;
 }
+
+#container {
+    width: 120px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    justify-content: stretch;
+    flex: 1;
+}
