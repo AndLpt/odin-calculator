@@ -38,6 +38,13 @@ function clear() {
 let clearButton = document.querySelector("#clear");
 clearButton.addEventListener("click", () => clear());
 
+function formatDisplay(display) {
+    if (Number.isInteger(display)) {
+        return display;
+    }
+    return (parseFloat(display.toFixed(3)));
+}
+
 function operate(firstNumber, operator, secondNumber){
     switch(operator) {
         case("+"):
@@ -87,10 +94,11 @@ function handleEqual(hasPressedEqual) {
     shouldResetDisplay = true;
     operatorCount = hasPressedEqual ? 0 : 1;
     secondNumber = +display;
-    display = operate(firstNumber, operator, secondNumber);
-    firstNumber = +display;
+    display = formatDisplay(operate(firstNumber, operator, secondNumber));
+    firstNumber = display;
     displayNumber.textContent = display;
 }
+
 
 container.addEventListener("click", (e) => {
     const textContent = e.target.textContent;
