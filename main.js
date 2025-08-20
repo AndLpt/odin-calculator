@@ -19,6 +19,7 @@ let operator = null;
 let secondNumber = null;
 let operatorCount = 0;
 let hasPressedDigit = false;
+let hasClickedOperator = false;
 
 let displayNumber = document.querySelector("#display");
 let display = "0";
@@ -33,6 +34,7 @@ function clear() {
     secondNumber = null;
     operator = null;
     display = "0";
+    operatorCount = 0;
     displayNumber.textContent = display;
 }
 
@@ -79,27 +81,41 @@ function handleDigit(textContent) {
     
     displayNumber.textContent = display;
     hasPressedDigit = true;
+    hasClickedOperator = false
 }
 
 function handleOperator(textContent) {
     shouldResetDisplay = true;
-    operatorCount++;
-    if(operatorCount === 1) {
-        firstNumber = +display;
-    }else if(operatorCount === 2) {
-        handleEqual(false);
-    }  
+    if (!hasClickedOperator) {
+        operatorCount++;
+        if(operatorCount === 1) {
+            firstNumber = +display;
+        }else if(operatorCount === 2) {
+            handleEqual(false);
+        } 
+        hasClickedOperator = true;
+        hasPressedDigit = false;
+    }    
     operator = textContent;
-    hasPressedDigit = false;
+    
 }
 
 function handleEqual(hasPressedEqual) {
-    if (hasPressedEqual && operatorCount < 1 ||
-        !hasPressedEqual && operatorCount < 2) {
-        alert("Enter all the numbers.");
-        clear();
-        return;
+    if (hasPressedEqual) {
+        if (operatorCount < 1) {
+            alert("Enter all the numbers.");
+            clear();
+            return;
+        }
+
+        if (!hasPressedDigit) {
+            alert("Enter all the numbers.");
+            clear();
+            return;
+        }
+
     }
+
     shouldResetDisplay = true;
     operatorCount = hasPressedEqual ? 0 : 1;
     secondNumber = +display;
@@ -109,6 +125,7 @@ function handleEqual(hasPressedEqual) {
         return;
     }
     display = formatDisplay(operate(firstNumber, operator, secondNumber));
+    hasPressedDigit = true;
     firstNumber = display;
     displayNumber.textContent = display;
 }
