@@ -65,8 +65,6 @@ function operate(firstNumber, operator, secondNumber){
         case("/"):
             return divide(firstNumber, secondNumber);
             break;
-        default:
-            alert("Bad operator!");
     }
 }
 
@@ -141,6 +139,7 @@ decimal.addEventListener("click", () => {
 
 undo.addEventListener("click", () => {
     display = display.slice(0, display.length -1);
+    if (display === "") display = "0";
     displayNumber.textContent = display;
 })
 
@@ -170,8 +169,6 @@ document.addEventListener("keydown", (e) => {
         case "/":
             handleOperator(key);
             break;
-        default:
-            console.log("operator not valid");
     }
 })
 
@@ -191,8 +188,6 @@ container.addEventListener("click", (e) => {
             case "/":
                 handleOperator(textContent);
                 break;
-            default:
-                console.log("Unknown input");
         }
     }
 })
