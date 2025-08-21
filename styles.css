@@ -7,14 +7,28 @@
 }
 
 #container {
-    width: 120px;
-    height: 180px;
+    width: 160px;
+    height: 200px;
     display: flex;
     flex-direction: column;
 }
 
 .row {
     display: flex;
-    justify-content: stretch;
     flex: 1;
+}
+
+.row button {
+    flex: 1; 
+}
+
+.row.first button {
+    flex: 1 0 30px;
+}
+
+#display {
+    flex: 1 1 auto; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
 }
