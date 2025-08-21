@@ -1,201 +1,146 @@
-function add(firstNumber, secondNumber) {
-    return firstNumber + secondNumber;
+// main.js
+
+// Basic math functions
+const add = (a, b) => a + b;
+const subtract = (a, b) => a - b;
+const multiply = (a, b) => a * b;
+const divide = (a, b) => a / b;
+
+// Calculator state object
+const calculator = {
+    firstNumber: null,
+    operator: null,
+    shouldResetDisplay: false,
+};
+
+// DOM references
+const displayNumber = document.querySelector("#display");
+const decimal = document.querySelector("#decimal");
+const undo = document.querySelector("#undo");
+const clearButton = document.querySelector("#clear");
+const container = document.querySelector("#container");
+const digits = "0123456789";
+
+// Update the display
+function updateDisplay() {
+    displayNumber.textContent = display;
 }
 
-function subtract(firstNumber, secondNumber) {
-    return firstNumber - secondNumber;
-}
-
-function multiply(firstNumber, secondNumber) {
-    return firstNumber * secondNumber;
-}
-
-function divide(firstNumber, secondNumber) {
-    return firstNumber / secondNumber
-}
-
-let firstNumber = null;
-let operator = null;
-let secondNumber = null;
-let operatorCount = 0;
-let hasPressedDigit = false;
-let hasClickedOperator = false;
-let decimal = document.querySelector("#decimal");
-let undo = document.querySelector("#undo");
-
-let displayNumber = document.querySelector("#display");
-let display = "0";
-displayNumber.textContent = display;
-let shouldResetDisplay = false;
-
-let container = document.querySelector("#container");
-let digits = "0123456789";
-
+// Clear calculator
 function clear() {
-    firstNumber = null;
-    secondNumber = null;
-    operator = null;
-    decimal.disabled = false;
     display = "0";
-    operatorCount = 0;
-    displayNumber.textContent = display;
+    calculator.firstNumber = null;
+    calculator.operator = null;
+    calculator.shouldResetDisplay = false;
+    decimal.disabled = false;
+    updateDisplay();
 }
 
-let clearButton = document.querySelector("#clear");
-clearButton.addEventListener("click", () => clear());
-
-function formatDisplay(display) {
-    if (Number.isInteger(display)) {
-        return display;
-    }
-    return (parseFloat(display.toFixed(3)));
+// Round / format display numbers
+function formatDisplay(num) {
+    return Number.isInteger(num) ? num : parseFloat(num.toFixed(3));
 }
 
-function operate(firstNumber, operator, secondNumber){
-    switch(operator) {
-        case("+"):
-            return add(firstNumber, secondNumber);
-            break;
-        case("-"):
-            return subtract(firstNumber, secondNumber);
-            break;
-        case("*"):
-            return multiply(firstNumber, secondNumber);
-            break;
-        case("/"):
-            return divide(firstNumber, secondNumber);
-            break;
-        default:
-            alert("Bad operator!");
+// Perform calculation based on operator
+function operate(a, operator, b) {
+    switch (operator) {
+        case "+": return add(a, b);
+        case "-": return subtract(a, b);
+        case "*": return multiply(a, b);
+        case "/": return divide(a, b);
+        default: return b; // fallback
     }
 }
 
-function handleDigit(textContent) {
-    if (shouldResetDisplay) {
-        display = "0";
-        decimal.disabled = false;
-        shouldResetDisplay = false;
+// Digit input handler
+function handleDigit(digit) {
+    if (calculator.shouldResetDisplay || display === "0") {
+        display = digit;
+        calculator.shouldResetDisplay = false;
+    } else {
+        display += digit;
     }
-
-    if(display === "0") {
-        display = textContent;
-    }else {
-        display += textContent;
-    }
-    
-    displayNumber.textContent = display;
-    hasPressedDigit = true;
-    hasClickedOperator = false
+    updateDisplay();
 }
 
-function handleOperator(textContent) {
-    shouldResetDisplay = true;
-    if (!hasClickedOperator) {
-        operatorCount++;
-        if(operatorCount === 1) {
-            firstNumber = +display;
-        }else if(operatorCount === 2) {
-            handleEqual(false);
-        } 
-        hasClickedOperator = true;
-        hasPressedDigit = false;
-    }    
-    operator = textContent;
-    
+// Decimal input handler
+function handleDecimal() {
+    if (!display.includes(".")) {
+        display += ".";
+        updateDisplay();
+    }
 }
 
-function handleEqual(hasPressedEqual) {
-    if (hasPressedEqual) {
-        if (operatorCount < 1) {
-            alert("Enter all the numbers.");
-            clear();
-            return;
-        }
+// Operator input handler
+function handleOperator(op) {
+    const currentNumber = +display;
 
-        if (!hasPressedDigit) {
-            alert("Enter all the numbers.");
-            clear();
-            return;
-        }
-
+    if (calculator.firstNumber === null) {
+        // First time operator pressed
+        calculator.firstNumber = currentNumber;
+    } else if (!calculator.shouldResetDisplay) {
+        // Chain calculations
+        calculator.firstNumber = operate(calculator.firstNumber, calculator.operator, currentNumber);
+        display = formatDisplay(calculator.firstNumber);
+        updateDisplay();
     }
 
-    shouldResetDisplay = true;
-    operatorCount = hasPressedEqual ? 0 : 1;
-    secondNumber = +display;
-    if(secondNumber === 0) {
-        alert("Nope, can't divide by 0!");
+    calculator.operator = op;
+    calculator.shouldResetDisplay = true;
+}
+
+// Equal handler
+function handleEqual() {
+    if (calculator.operator === null) return;
+
+    const secondNumber = +display;
+
+    // Prevent division by zero
+    if (calculator.operator === "/" && secondNumber === 0) {
+        alert("Cannot divide by 0!");
         clear();
         return;
     }
-    display = formatDisplay(operate(firstNumber, operator, secondNumber));
-    hasPressedDigit = true;
-    firstNumber = display;
-    displayNumber.textContent = display;
+
+    const result = operate(calculator.firstNumber, calculator.operator, secondNumber);
+    display = formatDisplay(result);
+    updateDisplay();
+
+    // Prepare for next calculation
+    calculator.firstNumber = result;
+    calculator.shouldResetDisplay = true;
+    calculator.operator = null;
 }
 
-decimal.addEventListener("click", () => {
-    display += ".";
-    decimal.disabled = true;
-})
+// Undo handler
+function handleUndo() {
+    display = display.slice(0, -1) || "0";
+    updateDisplay();
+}
 
-undo.addEventListener("click", () => {
-    display = display.slice(0, display.length -1);
-    displayNumber.textContent = display;
-})
+// Initial display value
+let display = "0";
 
+// Event listeners
+clearButton.addEventListener("click", clear);
+decimal.addEventListener("click", handleDecimal);
+undo.addEventListener("click", handleUndo);
 
+// Keyboard input
 document.addEventListener("keydown", (e) => {
     const key = e.key;
-    console.log("bouton appuye est " + key);
-    if (digits.includes(key)) {
-        handleDigit(key);
-        return;
-    }
-    switch(key) {
-        case "=":
-        case "Enter":
-            handleEqual(true);
-            break;
-        case ".":
-            decimal.dispatchEvent(new Event("click"));
-            break;
-        case "Backspace":
-        case "Delete":
-            undo.dispatchEvent(new Event("click"));
-            break;
-        case "+":
-        case "-":
-        case "*":
-        case "/":
-            handleOperator(key);
-            break;
-        default:
-            console.log("operator not valid");
-    }
-})
+    if (digits.includes(key)) handleDigit(key);
+    else if (key === ".") handleDecimal();
+    else if (key === "Enter" || key === "=") handleEqual();
+    else if (key === "Backspace" || key === "Delete") handleUndo();
+    else if (["+", "-", "*", "/"].includes(key)) handleOperator(key);
+});
 
+// Mouse click input
 container.addEventListener("click", (e) => {
-    const textContent = e.target.textContent;
-    if (digits.includes(textContent)) {
-        handleDigit(textContent);
-        return;
-    } else {
-        switch (textContent) {
-            case "=":
-                handleEqual(true);
-                break;
-            case "+":
-            case "-":
-            case "*":
-            case "/":
-                handleOperator(textContent);
-                break;
-            default:
-                console.log("Unknown input");
-        }
-    }
-})
-
-
-
+    const text = e.target.textContent;
+    if (digits.includes(text)) handleDigit(text);
+    else if (text === ".") handleDecimal();
+    else if (text === "=") handleEqual();
+    else if (["+", "-", "*", "/"].includes(text)) handleOperator(text);
+});
